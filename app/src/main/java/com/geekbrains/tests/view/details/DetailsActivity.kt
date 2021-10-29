@@ -5,19 +5,29 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.geekbrains.tests.R
-import com.geekbrains.tests.presenter.details.DetailsPresenter
-import com.geekbrains.tests.presenter.details.PresenterDetailsContract
+import com.geekbrains.tests.presenter.details.DetailsPresenterImpl
+import com.geekbrains.tests.presenter.details.DetailsPresenterContract
 import kotlinx.android.synthetic.main.activity_details.*
 import java.util.*
 
 class DetailsActivity : AppCompatActivity(), ViewDetailsContract {
 
-    private val presenter: PresenterDetailsContract = DetailsPresenter(this)
+    private val presenter: DetailsPresenterContract = DetailsPresenterImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         setUI()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        presenter.attachView(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        presenter.detachView(this)
     }
 
     private fun setUI() {
