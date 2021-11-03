@@ -20,6 +20,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.core.context.stopKoin
 import org.mockito.MockitoAnnotations
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -40,6 +41,7 @@ class MainActivityTest {
     @After
     fun close() {
         mainActivityScenario.close()
+        stopKoin()
     }
 
     @Test
