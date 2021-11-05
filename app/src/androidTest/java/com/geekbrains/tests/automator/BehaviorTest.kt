@@ -3,9 +3,6 @@ package com.geekbrains.tests.automator
 import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
@@ -13,7 +10,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import com.geekbrains.tests.R
+import com.geekbrains.tests.RESULTS_COUNT
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -66,9 +63,8 @@ class BehaviorTest {
         val editText = uiDevice.findObject(By.res(packageName, "searchEditText"))
         //Устанавливаем значение
         editText.text = "UiAutomator"
-        //Отправляем запрос через Espresso
-        Espresso.onView(ViewMatchers.withId(R.id.searchEditText))
-            .perform(ViewActions.pressImeActionButton())
+
+        uiDevice.findObject(By.res(packageName, "text_input_end_icon")).click()
 
         //Ожидаем конкретного события: появления текстового поля totalCountTextView.
         //Это будет означать, что сервер вернул ответ с какими-то данными, то есть запрос отработал.
@@ -79,7 +75,7 @@ class BehaviorTest {
             )
         //Убеждаемся, что сервер вернул корректный результат. Обратите внимание, что количество
         //результатов может варьироваться во времени, потому что количество репозиториев постоянно меняется.
-        Assert.assertEquals(changedText.text.toString(), "Number of results: 686")
+        Assert.assertEquals(changedText.text.toString(), EXPECTED_SEARCHED_STRING)
     }
 
     //Убеждаемся, что DetailsScreen открывается
@@ -107,10 +103,90 @@ class BehaviorTest {
         //так как мы кликаем по кнопке не отправляя никаких поисковых запросов.
         //Чтобы проверить отображение определенного количества репозиториев,
         //вам в одном и том же методе нужно отправить запрос на сервер и открыть DetailsScreen.
-        Assert.assertEquals(changedText.text, "Number of results: 0")
+        Assert.assertEquals(changedText.text, EXPECTED_SEARCHED_STRING_ZERO)
+    }
+
+    @Test
+    fun test_OpenDetailsScreenAfterPositiveSearch() {
+        with(uiDevice) {
+            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "text_input_end_icon")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            findObject(By.res(packageName, "toDetailsActivityButton")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            val isCorrectText = wait(
+                Until.hasObject(By.text(EXPECTED_SEARCHED_STRING)), TIMEOUT
+            )
+            Assert.assertTrue(isCorrectText)
+        }
+    }
+
+    @Test
+    fun test_NoTotalCountTextViewIfNoQueryString() {
+        uiDevice.findObject(By.res(packageName, "text_input_end_icon")).click()
+        val hasTotalCountTextView = uiDevice.wait(
+            Until.hasObject(By.res(packageName, "totalCountTextView")), TIMEOUT
+        )
+        Assert.assertFalse(hasTotalCountTextView)
+    }
+
+    @Test
+    fun test_DecrementButton() {
+        with(uiDevice) {
+            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "text_input_end_icon")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            findObject(By.res(packageName, "toDetailsActivityButton")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            findObject(By.res(packageName, "decrementButton")).click()
+            val isCorrectText = wait(
+                Until.hasObject(By.text(EXPECTED_SEARCHED_STRING_AFTER_DECREMENT)), TIMEOUT
+            )
+            Assert.assertTrue(isCorrectText)
+        }
+    }
+
+    @Test
+    fun test_IncrementButton() {
+        with(uiDevice) {
+            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "text_input_end_icon")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            findObject(By.res(packageName, "toDetailsActivityButton")).click()
+            wait(
+                Until.findObject(By.res(packageName, "totalCountTextView")),
+                TIMEOUT
+            )
+            findObject(By.res(packageName, "incrementButton")).click()
+            val isCorrectText = wait(
+                Until.hasObject(By.text(EXPECTED_SEARCHED_STRING_AFTER_INCREMENT)), TIMEOUT
+            )
+            Assert.assertTrue(isCorrectText)
+        }
     }
 
     companion object {
         private const val TIMEOUT = 5000L
+        private const val EXPECTED_STRING = "Number of results:"
+        private const val EXPECTED_SEARCHED_STRING = "$EXPECTED_STRING $RESULTS_COUNT"
+        private const val EXPECTED_SEARCHED_STRING_AFTER_DECREMENT = "$EXPECTED_STRING ${RESULTS_COUNT - 1}"
+        private const val EXPECTED_SEARCHED_STRING_AFTER_INCREMENT = "$EXPECTED_STRING ${RESULTS_COUNT + 1}"
+        private const val EXPECTED_SEARCHED_STRING_ZERO = "$EXPECTED_STRING 0"
+
     }
 }
