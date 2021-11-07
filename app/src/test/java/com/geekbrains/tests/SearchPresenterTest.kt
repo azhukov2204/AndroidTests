@@ -42,10 +42,10 @@ class SearchPresenterTest {
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
     fun searchGitHub_Test() {
-        val searchQuery = "some query"
+        val searchQuery = SEARCH_QUERY
         //Запускаем код, функционал которого хотим протестировать
         val inOrder = inOrder(viewContract, repository)
-        presenter.searchGitHub("some query")
+        presenter.searchGitHub(searchQuery)
         //Убеждаемся, что все работает как надо
         inOrder.verify(viewContract, times(1)).displayLoading(true)
         inOrder.verify(repository, times(1)).searchGithub(searchQuery, presenter)
@@ -86,7 +86,7 @@ class SearchPresenterTest {
 
         //Убеждаемся, что вызывается верный метод: viewContract.displayError("Response is null or unsuccessful"), и что он вызывается единожды
         verify(viewContract, times(1))
-            .displayError("Response is null or unsuccessful")
+            .displayError(RESPONSE_IS_NULL_MESSAGE)
     }
 
     @Test //Проверим порядок вызова методов viewContract
@@ -99,7 +99,7 @@ class SearchPresenterTest {
         val inOrder = inOrder(viewContract)
         //Прописываем порядок вызова методов
         inOrder.verify(viewContract).displayLoading(false)
-        inOrder.verify(viewContract).displayError("Response is null or unsuccessful")
+        inOrder.verify(viewContract).displayError(RESPONSE_IS_NULL_MESSAGE)
     }
 
     @Test //Проверим пустой ответ сервера
@@ -135,7 +135,7 @@ class SearchPresenterTest {
 
         //Убеждаемся, что вызывается верный метод: viewContract.displayError("Search results or total count are null"), и что он вызывается единожды
         verify(viewContract, times(1))
-            .displayError("Search results or total count are null")
+            .displayError(SEARCH_RESULTS_ARE_NULL)
     }
 
     @Test //Пришло время проверить успешный ответ, так как все остальные случаи мы уже покрыли тестами
@@ -152,13 +152,13 @@ class SearchPresenterTest {
         `when`(response.isSuccessful).thenReturn(true)
         `when`(response.body()).thenReturn(searchResponse)
         `when`(searchResponse.searchResults).thenReturn(searchResults)
-        `when`(searchResponse.totalCount).thenReturn(101)
+        `when`(searchResponse.totalCount).thenReturn(RESULTS_COUNT)
 
         //Запускаем выполнение метода
         presenter.handleGitHubResponse(response)
 
         //Убеждаемся, что ответ от сервера обрабатывается корректно
-        verify(viewContract, times(1)).displaySearchResults(searchResults, 101)
+        verify(viewContract, times(1)).displaySearchResults(searchResults, RESULTS_COUNT)
     }
 
     @Test

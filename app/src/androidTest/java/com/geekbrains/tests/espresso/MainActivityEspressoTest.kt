@@ -1,6 +1,7 @@
-package com.geekbrains.tests
+package com.geekbrains.tests.espresso
 
 import android.content.Context
+import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -8,12 +9,16 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.geekbrains.tests.*
 import com.geekbrains.tests.view.search.MainActivity
 import junit.framework.TestCase
+import org.hamcrest.Matcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -113,9 +118,20 @@ class MainActivityEspressoTest {
     @Test
     fun activitySearch_IsWorking() {
         onView(withId(R.id.searchEditText)).perform(click())
-        onView(withId(R.id.searchEditText)).perform(replaceText("algol"), closeSoftKeyboard())
+        onView(withId(R.id.searchEditText)).perform(replaceText(SEARCH_QUERY), closeSoftKeyboard())
         onView(withId(R.id.searchEditText)).perform(pressImeActionButton())
-        onView(withId(R.id.totalCountTextView)).check(matches(withText("Number of results: 42")))
+        onView(isRoot()).perform(delay())
+        onView(withId(R.id.totalCountTextView)).check(matches(withText(EXPECTED_SEARCHED_STRING)))
+    }
+
+    private fun delay(): ViewAction {
+        return object : ViewAction {
+            override fun getConstraints(): Matcher<View> = isRoot()
+            override fun getDescription(): String = ON_DELAY_MESSAGE
+            override fun perform(uiController: UiController, v: View?) {
+                uiController.loopMainThreadForAtLeast(DELAY)
+            }
+        }
     }
 
     @After

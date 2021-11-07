@@ -79,7 +79,7 @@ class MainActivityTest {
 
     @Test
     fun searchEditText_SetTextTest() {
-        val queryString = "android"
+        val queryString = SEARCH_QUERY
         mainActivityScenario.onActivity {
             it.findViewById<EditText>(R.id.searchEditText).let { searchEditText ->
                 searchEditText.setText(queryString, TextView.BufferType.EDITABLE)
@@ -90,7 +90,7 @@ class MainActivityTest {
 
     @Test
     fun searchEditText_SetText_checkProgressBarVisibility() {
-        val queryString = "android"
+        val queryString = SEARCH_QUERY
         mainActivityScenario.onActivity {
             it.findViewById<EditText>(R.id.searchEditText).apply {
                 setText(queryString, TextView.BufferType.EDITABLE)
