@@ -2,21 +2,27 @@ package com.geekbrains.tests
 
 import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.model.SearchResult
-import com.geekbrains.tests.presenter.search.SearchPresenter
+import com.geekbrains.tests.presenter.search.SearchPresenterImpl
 import com.geekbrains.tests.repository.GitHubRepository
 import com.geekbrains.tests.view.search.ViewSearchContract
+import com.nhaarman.mockito_kotlin.inOrder
+import com.nhaarman.mockito_kotlin.never
+import com.nhaarman.mockito_kotlin.times
+import com.nhaarman.mockito_kotlin.verify
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.Mock
-import org.mockito.Mockito.*
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 import retrofit2.Response
 
 //Тестируем наш Презентер
 class SearchPresenterTest {
 
-    private lateinit var presenter: SearchPresenter
+    private lateinit var presenter: SearchPresenterImpl
 
     @Mock
     private lateinit var repository: GitHubRepository
@@ -28,26 +34,31 @@ class SearchPresenterTest {
     fun setUp() {
         //Обязательно для аннотаций "@Mock"
         //Раньше было @RunWith(MockitoJUnitRunner.class) в аннотации к самому классу (SearchPresenterTest)
-        MockitoAnnotations.initMocks(this)
+        MockitoAnnotations.openMocks(this)
         //Создаем Презентер, используя моки Репозитория и Вью, проинициализированные строкой выше
-        presenter = SearchPresenter(viewContract, repository)
+        presenter = SearchPresenterImpl(repository)
+        presenter.attachView(viewContract)
     }
 
     @Test //Проверим вызов метода searchGitHub() у нашего Репозитория
     fun searchGitHub_Test() {
         val searchQuery = "some query"
         //Запускаем код, функционал которого хотим протестировать
+        val inOrder = inOrder(viewContract, repository)
         presenter.searchGitHub("some query")
         //Убеждаемся, что все работает как надо
-        verify(repository, times(1)).searchGithub(searchQuery, presenter)
+        inOrder.verify(viewContract, times(1)).displayLoading(true)
+        inOrder.verify(repository, times(1)).searchGithub(searchQuery, presenter)
     }
 
     @Test //Проверяем работу метода handleGitHubError()
     fun handleGitHubError_Test() {
         //Вызываем у Презентера метод handleGitHubError()
+        val inOrder = inOrder(viewContract)
         presenter.handleGitHubError()
         //Проверяем, что у viewContract вызывается метод displayError()
-        verify(viewContract, times(1)).displayError()
+        inOrder.verify(viewContract, times(1)).displayLoading(false)
+        inOrder.verify(viewContract, times(1)).displayError()
     }
 
     //Проверяем работу метода handleGitHubResponse
@@ -148,5 +159,19 @@ class SearchPresenterTest {
 
         //Убеждаемся, что ответ от сервера обрабатывается корректно
         verify(viewContract, times(1)).displaySearchResults(searchResults, 101)
+    }
+
+    @Test
+    fun detachView_neverDisplayLoading() {
+        presenter.detachView(viewContract)
+        presenter.handleGitHubError()
+        verify(viewContract, never()).displayLoading(anyBoolean())
+    }
+
+    @Test
+    fun detachView_neverDisplayError() {
+        presenter.detachView(viewContract)
+        presenter.handleGitHubError()
+        verify(viewContract, never()).displayError()
     }
 }
