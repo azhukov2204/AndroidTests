@@ -8,7 +8,8 @@ import org.koin.dsl.module
 internal val presenterModule = module {
     factory<SearchPresenterContract> {
         SearchPresenterImpl(
-            repository = get(named("fake"))
+            repository = get(named("fake")),
+            appSchedulerProvider = get()
         )
     }
 }
