@@ -10,7 +10,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
-import com.geekbrains.tests.RESULTS_COUNT
+import com.geekbrains.tests.*
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -109,7 +109,7 @@ class BehaviorTest {
     @Test
     fun test_OpenDetailsScreenAfterPositiveSearch() {
         with(uiDevice) {
-            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "searchEditText")).apply { text = SEARCH_QUERY }
             findObject(By.res(packageName, "text_input_end_icon")).click()
             wait(
                 Until.findObject(By.res(packageName, "totalCountTextView")),
@@ -139,7 +139,7 @@ class BehaviorTest {
     @Test
     fun test_DecrementButton() {
         with(uiDevice) {
-            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "searchEditText")).apply { text = SEARCH_QUERY }
             findObject(By.res(packageName, "text_input_end_icon")).click()
             wait(
                 Until.findObject(By.res(packageName, "totalCountTextView")),
@@ -161,7 +161,7 @@ class BehaviorTest {
     @Test
     fun test_IncrementButton() {
         with(uiDevice) {
-            findObject(By.res(packageName, "searchEditText")).apply { text = "UiAutomator" }
+            findObject(By.res(packageName, "searchEditText")).apply { text = SEARCH_QUERY }
             findObject(By.res(packageName, "text_input_end_icon")).click()
             wait(
                 Until.findObject(By.res(packageName, "totalCountTextView")),
@@ -178,15 +178,5 @@ class BehaviorTest {
             )
             Assert.assertTrue(isCorrectText)
         }
-    }
-
-    companion object {
-        private const val TIMEOUT = 5000L
-        private const val EXPECTED_STRING = "Number of results:"
-        private const val EXPECTED_SEARCHED_STRING = "$EXPECTED_STRING $RESULTS_COUNT"
-        private const val EXPECTED_SEARCHED_STRING_AFTER_DECREMENT = "$EXPECTED_STRING ${RESULTS_COUNT - 1}"
-        private const val EXPECTED_SEARCHED_STRING_AFTER_INCREMENT = "$EXPECTED_STRING ${RESULTS_COUNT + 1}"
-        private const val EXPECTED_SEARCHED_STRING_ZERO = "$EXPECTED_STRING 0"
-
     }
 }

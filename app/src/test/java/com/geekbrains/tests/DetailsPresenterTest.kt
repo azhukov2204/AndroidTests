@@ -18,7 +18,6 @@ class DetailsPresenterTest {
 
     private val detailsPresenter by lazy { DetailsPresenterImpl() }
 
-
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
@@ -27,7 +26,7 @@ class DetailsPresenterTest {
 
     @Test
     fun onIncrement_test() {
-        var initCounterValues = 100
+        var initCounterValues = RESULTS_COUNT
         detailsPresenter.setCounter(initCounterValues)
         detailsPresenter.onIncrement()
         verify(viewContract, times(1)).setCount(++initCounterValues)
@@ -35,7 +34,7 @@ class DetailsPresenterTest {
 
     @Test
     fun onDecrement_test() {
-        var initCounterValues = 100
+        var initCounterValues = RESULTS_COUNT
         detailsPresenter.setCounter(initCounterValues)
         detailsPresenter.onDecrement()
         verify(viewContract, times(1)).setCount(--initCounterValues)
