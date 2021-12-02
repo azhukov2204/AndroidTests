@@ -4,6 +4,7 @@ import com.geekbrains.tests.model.SearchResponse
 import com.geekbrains.tests.model.SearchResult
 import com.geekbrains.tests.presenter.search.SearchPresenterImpl
 import com.geekbrains.tests.repository.GitHubRepository
+import com.geekbrains.tests.presenter.ScheduleProviderStub
 import com.geekbrains.tests.view.search.ViewSearchContract
 import com.nhaarman.mockito_kotlin.inOrder
 import com.nhaarman.mockito_kotlin.never
@@ -36,7 +37,7 @@ class SearchPresenterTest {
         //Раньше было @RunWith(MockitoJUnitRunner.class) в аннотации к самому классу (SearchPresenterTest)
         MockitoAnnotations.openMocks(this)
         //Создаем Презентер, используя моки Репозитория и Вью, проинициализированные строкой выше
-        presenter = SearchPresenterImpl(repository)
+        presenter = SearchPresenterImpl(repository, ScheduleProviderStub())
         presenter.attachView(viewContract)
     }
 
